@@ -1,18 +1,22 @@
 package memory
 
 type Document struct {
-	id uint32
-	fields []DocumentField
+	Id uint32
+	Fields []DocumentField
 }
-func (document *Document) Insert(datasetId uint64, offsetId uint64,data VectorData){
-	for _,field := range document.fields {
-		field.Insert(datasetId,offsetId,document.id,data)
+func NewDocument(id uint32) Document {
+	return Document{Id: id, Fields: []DocumentField{}}
+}
+func (document *Document) Insert(datasetId uint64, offsetId uint64,data *VectorData){
+	for _,field := range document.Fields {
+		field.insert(datasetId,offsetId,document.Id,data)
 	}
 }
 func (document *Document) AddField(field DocumentField){
-	document.fields = append(document.fields, field)
+	document.Fields = append(document.Fields, field)
 }
 type DocumentField interface {
 	Values() []string
-	Insert(datasetId uint64, offsetId uint64,docId uint32,data VectorData)
+	Id() string
+	insert(datasetId uint64, offsetId uint64,docId uint32,data *VectorData)
 }
