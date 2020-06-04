@@ -7,6 +7,7 @@ import (
 	. "github.com/rabitzdb/rabitz/internal/data"
 	"github.com/rabitzdb/rabitz/internal/data/memory"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -190,7 +191,7 @@ var _ = Describe("Number of values is", func() {
 	Describe("100 and add",func(){
 		values := make([]string,100)
 		for i := 0;i<100;i++ {
-			values[i] = "fvalue"+string(i)
+			values[i] = "fvalue"+strconv.Itoa(i)
 		}
 		JustBeforeEach(func(){
 			vectors = mockData.GetVectors(dataset,offset,field)
@@ -461,7 +462,7 @@ var _ = Describe("Number of values is", func() {
 
 func addOtherVectors(dataset uint64, offset uint64,field string, data memory.VectorData, random *rand.Rand) {
 	for i := 0;i<100;i++ {
-		addOneHundredDocuments(dataset,offset,field,"value"+string(i),data,random)
+		addOneHundredDocuments(dataset,offset,field,"value"+strconv.Itoa(i),data,random)
 	}
 }
 func addOneHundredDocuments(dataset uint64, offset uint64,field string, value string, data memory.VectorData, random *rand.Rand) roaring.Bitmap{

@@ -5,7 +5,7 @@ import (
 )
 
 // Nominal Dimension
-func GetNominalDimension(definition DimensionDefinition, data Data) Dimension {
+func GetNominalDimension(definition DimensionDefinition, data VectorReader) Dimension {
 	// Get data from Database
 	vectors := data.GetVectors(definition.Dataset,definition.Offset,definition.Field)
 	// Get categories
