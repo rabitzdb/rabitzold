@@ -1,4 +1,8 @@
-package memory
+package data
+
+import (
+	"github.com/RoaringBitmap/roaring"
+)
 
 type Document struct {
 	Id uint32
@@ -7,9 +11,9 @@ type Document struct {
 func NewDocument(id uint32) Document {
 	return Document{Id: id, Fields: []DocumentField{}}
 }
-func (document *Document) Insert(datasetId uint64, offsetId uint64,data *VectorData){
+func (document *Document) Insert(datasetId uint64, offsetId uint64,data VectorWriter){
 	for _,field := range document.Fields {
-		field.insert(datasetId,offsetId,document.Id,data)
+		field.Insert(datasetId,offsetId,document.Id,data)
 	}
 }
 func (document *Document) AddField(field DocumentField){
@@ -18,5 +22,10 @@ func (document *Document) AddField(field DocumentField){
 type DocumentField interface {
 	Values() []string
 	Id() string
-	insert(datasetId uint64, offsetId uint64,docId uint32,data *VectorData)
+	Insert(datasetId uint64, offsetId uint64,docId uint32,data VectorWriter)
+}
+
+type Vector struct {
+	Value string
+	Bits *roaring.Bitmap
 }

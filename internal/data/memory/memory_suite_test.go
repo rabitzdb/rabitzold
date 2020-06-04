@@ -9,5 +9,7 @@ import (
 
 func TestData(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Memory VectorData Suite")
+	RunSpecs(t, "Memory Test")
 }
+
+
