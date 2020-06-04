@@ -16,6 +16,6 @@ type Dimension struct {
 
 type DimensionDefinition struct {
 	Dataset uint64
-	Offset uint16
+	Offset uint64
 	Field string
 }

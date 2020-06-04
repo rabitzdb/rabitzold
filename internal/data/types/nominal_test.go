@@ -1,11 +1,14 @@
-package memory_test
+package types_test
 
 import (
 	"github.com/RoaringBitmap/roaring"
 	. "github.com/onsi/ginkgo"
-	"github.com/onsi/gomega"
+	. "github.com/onsi/gomega"
+	. "github.com/rabitzdb/rabitz/internal/data"
 	"github.com/rabitzdb/rabitz/internal/data/memory"
+	"github.com/rabitzdb/rabitz/internal/data/types"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -17,7 +20,7 @@ var _ = Describe("Add", func() {
 	nPosibleFields := int32(30)
 	nPosibleValues := int32(20)
 
-	var documents []memory.Document
+	var documents []Document
 	var nDocuments int32
 	var nFields int32
 	var nValues int32
@@ -26,7 +29,7 @@ var _ = Describe("Add", func() {
 		mockData = memory.NewData()
 	})
 	JustBeforeEach(func() {
-		documents = addDocuments(random, &mockData, nDocuments, nFields, dataset, offset, nPosibleFields, nValues, nPosibleValues)
+		documents = addNominalDocuments(random, &mockData, nDocuments, nFields, dataset, offset, nPosibleFields, nValues, nPosibleValues)
 	})
 	Describe("1 document", func() {
 		BeforeEach(func() {
@@ -42,9 +45,9 @@ var _ = Describe("Add", func() {
 				})
 				It("the document must exist only for the corresponding value", func() {
 					for _, document := range documents {
-						gomega.Expect(
-							checkDocument(dataset, offset, &document, &mockData)).To(
-							gomega.BeTrue())
+						Expect(
+							checkNominalDocument(dataset, offset, &document, &mockData)).To(
+							BeTrue())
 					}
 				})
 			})
@@ -54,9 +57,9 @@ var _ = Describe("Add", func() {
 				})
 				It("the document must exist only for each corresponding value", func() {
 					for _, document := range documents {
-						gomega.Expect(
-							checkDocument(dataset, offset, &document, &mockData)).To(
-							gomega.BeTrue())
+						Expect(
+							checkNominalDocument(dataset, offset, &document, &mockData)).To(
+							BeTrue())
 					}
 				})
 			})
@@ -71,9 +74,9 @@ var _ = Describe("Add", func() {
 				})
 				It("the document must exist only for each corresponding value", func() {
 					for _, document := range documents {
-						gomega.Expect(
-							checkDocument(dataset, offset, &document, &mockData)).To(
-							gomega.BeTrue())
+						Expect(
+							checkNominalDocument(dataset, offset, &document, &mockData)).To(
+							BeTrue())
 					}
 				})
 			})
@@ -83,9 +86,9 @@ var _ = Describe("Add", func() {
 				})
 				It("the document must exist only for each corresponding value", func() {
 					for _, document := range documents {
-						gomega.Expect(
-							checkDocument(dataset, offset, &document, &mockData)).To(
-							gomega.BeTrue())
+						Expect(
+							checkNominalDocument(dataset, offset, &document, &mockData)).To(
+							BeTrue())
 					}
 				})
 			})
@@ -105,9 +108,9 @@ var _ = Describe("Add", func() {
 				})
 				It("the documents must exist only for each corresponding value", func() {
 					for _, document := range documents {
-						gomega.Expect(
-							checkDocument(dataset, offset, &document, &mockData)).To(
-							gomega.BeTrue())
+						Expect(
+							checkNominalDocument(dataset, offset, &document, &mockData)).To(
+							BeTrue())
 					}
 				})
 			})
@@ -127,9 +130,9 @@ var _ = Describe("Add", func() {
 				})
 				It("the documents must exist only for each corresponding value", func() {
 					for _, document := range documents {
-						gomega.Expect(
-							checkDocument(dataset, offset, &document, &mockData)).To(
-							gomega.BeTrue())
+						Expect(
+							checkNominalDocument(dataset, offset, &document, &mockData)).To(
+							BeTrue())
 					}
 				})
 			})
@@ -139,9 +142,9 @@ var _ = Describe("Add", func() {
 				})
 				It("the documents must exist only for each corresponding value", func() {
 					for _, document := range documents {
-						gomega.Expect(
-							checkDocument(dataset, offset, &document, &mockData)).To(
-							gomega.BeTrue())
+						Expect(
+							checkNominalDocument(dataset, offset, &document, &mockData)).To(
+							BeTrue())
 					}
 				})
 			})
@@ -149,20 +152,20 @@ var _ = Describe("Add", func() {
 	})
 })
 
-func addDocuments(random *rand.Rand, data *memory.VectorData, nDocuments int32, nFields int32, datasetId uint64,
-	offsetId uint64, nPosibleFields int32, nValues int32, nPosibleValues int32) []memory.Document {
-	documents := make([]memory.Document, nDocuments)
+func addNominalDocuments(random *rand.Rand, data *memory.VectorData, nDocuments int32, nFields int32, datasetId uint64,
+	offsetId uint64, nPosibleFields int32, nValues int32, nPosibleValues int32) []Document {
+	documents := make([]Document, nDocuments)
 	fields := make([]string, nPosibleFields)
 	values := make([]string, nPosibleValues)
 	for i := int32(0); i < nPosibleFields; i++ {
-		fields[i] = "field" + string(i)
+		fields[i] = "field" + strconv.Itoa(int(i))
 	}
 	for i := int32(0); i < nPosibleValues; i++ {
-		values[i] = "value" + string(i)
+		values[i] = "value" + strconv.Itoa(int(i))
 	}
 	for i := int32(0); i < nDocuments; i++ {
-		document := memory.NewDocument(uint32(random.Intn(8000000)))
-		documents = append(documents, document)
+		document := NewDocument(uint32(random.Intn(8000000)))
+		documents[i] = document
 		fieldIndexes := roaring.Bitmap{}
 		for fieldIndexes.GetCardinality() < uint64(nFields) {
 			fieldIndexes.Add(uint32(random.Int31n(nPosibleFields)))
@@ -179,18 +182,18 @@ func addDocuments(random *rand.Rand, data *memory.VectorData, nDocuments int32, 
 				fieldValues[pos] = fieldId + values[valueIndex]
 				return true
 			})
-			var field memory.DocumentField = memory.NewNominalField(fieldId, fieldValues...)
+			var field DocumentField = types.NewNominalField(fieldId, fieldValues...)
 			document.AddField(field)
-			document.Insert(datasetId, offsetId, data)
 			return true
 		})
+		document.Insert(datasetId, offsetId, data)
 	}
 	return documents
 }
-func checkDocument(dataset uint64, offset uint64, document *memory.Document, data *memory.VectorData) bool {
+func checkNominalDocument(dataset uint64, offset uint64, document *Document, data *memory.VectorData) bool {
 	documentId := document.Id
 	for _, field := range document.Fields {
-		valueMap := valuesToMap(field.Values())
+		valueMap := nominalValuesToMap(field.Values())
 		vectors := data.GetVectors(dataset, offset, field.Id())
 		for _, vector := range vectors {
 			contains := vector.Bits.Contains(documentId)
@@ -202,7 +205,7 @@ func checkDocument(dataset uint64, offset uint64, document *memory.Document, dat
 	}
 	return true
 }
-func valuesToMap(values []string) map[string]bool {
+func nominalValuesToMap(values []string) map[string]bool {
 	valueMap := make(map[string]bool)
 	for _, value := range values {
 		valueMap[value] = true
